@@ -1,11 +1,11 @@
-// src/components/Dashboard.tsx
 import { useToast } from '@/components/ui/use-toast';
 import { addPost, deletePost, fetchPosts, Post, updatePost } from '@/slice/post.slice';
 import { AppDispatch, RootState } from '@/store';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const { posts, status, error } = useSelector((state: RootState) => state.posts);
 	const [newPost, setNewPost] = useState<{ title: string; body: string; userId: number }>({
@@ -15,6 +15,16 @@ const Dashboard: React.FC = () => {
 	});
 	const [editingPost, setEditingPost] = useState<Post | null>(null);
 	const { toast } = useToast();
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const token = localStorage.getItem('token');
+
+		if (token) {
+			navigate('/dashboard');
+		}
+	}, [navigate]);
 
 	useEffect(() => {
 		dispatch(fetchPosts());

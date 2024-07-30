@@ -1,4 +1,3 @@
-// src/slice/post.slice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
