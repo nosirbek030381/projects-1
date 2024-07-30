@@ -1,10 +1,6 @@
 import { setItem } from '@/helpers/storage';
+import { AuthState } from '@/types';
 import { createSlice } from '@reduxjs/toolkit';
-
-interface AuthState {
-	isLoading: boolean;
-	loggedIn: boolean;
-}
 
 const initialState: AuthState = {
 	isLoading: false,
