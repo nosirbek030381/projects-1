@@ -22,14 +22,13 @@ const Login = () => {
 	const dispatch = useDispatch();
 	const { isLoading } = useSelector((state: RootState) => state.auth);
 	const navigate = useNavigate();
+	const token = localStorage.getItem('token');
 
 	useEffect(() => {
-		const token = localStorage.getItem('token');
-
 		if (token) {
 			navigate('/dashboard');
 		}
-	}, [navigate]);
+	}, [token]);
 
 	const formSchema = z.object({
 		username: z
