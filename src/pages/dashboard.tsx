@@ -1,64 +1,61 @@
-import { useToast } from '@/components/ui/use-toast';
-import { addPost, deletePost, fetchPosts, Post, updatePost } from '@/slice/post.slice';
+import { toast } from '@/components/ui/use-toast';
+import {
+	addProduct,
+	deleteProduct,
+	fetchProducts,
+	Product,
+	updateProduct,
+} from '@/slice/products.slice';
 import { AppDispatch, RootState } from '@/store';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
-const Dashboard = () => {
+const ProductsComponent = () => {
 	const dispatch = useDispatch<AppDispatch>();
-	const { posts, status, error } = useSelector((state: RootState) => state.posts);
-	const [newPost, setNewPost] = useState<{ title: string; body: string; userId: number }>({
+	const { products, status, error } = useSelector((state: RootState) => state.products);
+
+	const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
 		title: '',
-		body: '',
-		userId: 4,
+		description: '',
+		price: 0,
+		category: '',
+		thumbnail: '',
 	});
-	const [editingPost, setEditingPost] = useState<Post | null>(null);
-	const { toast } = useToast();
 
-	const navigate = useNavigate();
+	const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
 	useEffect(() => {
-		const token = localStorage.getItem('token');
-
-		if (token) {
-			navigate('/dashboard');
-		}
-	}, [navigate]);
-
-	useEffect(() => {
-		dispatch(fetchPosts());
+		dispatch(fetchProducts());
 	}, [dispatch]);
 
-	const handleAddPost = () => {
-		if (newPost.title && newPost.body) {
-			dispatch(addPost(newPost))
+	const handleAddProduct = () => {
+		if (newProduct.title && newProduct.description) {
+			dispatch(addProduct(newProduct))
 				.unwrap()
-				.then(addedPost => {
-					console.log('Post added successfully:', addedPost);
-					setNewPost({ title: '', body: '', userId: 1 });
-					toast({
-						description: "Yangi post qo'shildi.",
+				.then(() => {
+					setNewProduct({
+						title: '',
+						description: '',
+						price: 0,
+						category: '',
+						thumbnail: '',
 					});
 				})
 				.catch(error => {
-					console.error('Failed to save the post: ', error);
-					toast({
-						description: "Yangi post qo'shishda xatolik.",
-					});
+					console.error('Failed to add product:', error);
 				});
 		} else {
-			alert('Title and body are required.');
+			alert('Title and description are required.');
 		}
 	};
 
-	const handleUpdatePost = () => {
-		if (editingPost) {
-			dispatch(updatePost(editingPost))
+	const handleUpdateProduct = () => {
+		if (editingProduct) {
+			dispatch(updateProduct(editingProduct))
 				.unwrap()
 				.then(() => {
 					toast({ description: "Post o'zgartirildi." });
-					setEditingPost(null);
+					setEditingProduct(null);
 				})
 				.catch(error => {
 					toast({ description: "Post o'zgartirilishidagi xatolik.", color: 'red' });
@@ -67,87 +64,97 @@ const Dashboard = () => {
 		}
 	};
 
-	const handleDeletePost = (id: number) => {
-		dispatch(deletePost(id))
-			.unwrap()
-			.then(() => {
-				toast({ description: "Post o'chirildi." });
-			})
-			.catch(error => {
-				toast({ description: "Post o'chirildi." }), error;
-			});
-	};
-
 	if (status === 'loading') return <p>Loading...</p>;
-	if (status === 'failed') return <p>Error: {error}</p>;
+	if (status === 'failed') return <p className='error-message'>Error: {error}</p>;
 
 	return (
-		<div className='p-4 flex flex-col justify-center items-center max-w-6xl mx-auto'>
-			<h1 className='text-xl font-bold mb-4'>Posts Dashboard</h1>
-			<div className='mb-4'>
-				<h2 className='text-lg font-semibold'>Add New Post</h2>
-				<div className='flex flex-col items-center'>
+		<div className='container'>
+			<h2>Add New Product</h2>
+			<input
+				type='text'
+				value={newProduct.title}
+				onChange={e => setNewProduct({ ...newProduct, title: e.target.value })}
+				placeholder='Title'
+			/>
+			<input
+				type='text'
+				value={newProduct.description}
+				onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+				placeholder='Description'
+			/>
+			<input
+				type='text'
+				value={newProduct.thumbnail}
+				onChange={e => setNewProduct({ ...newProduct, thumbnail: e.target.value })}
+				placeholder='Image URL'
+			/>
+			<input
+				type='number'
+				value={newProduct.price}
+				onChange={e => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+				placeholder='Price'
+			/>
+			<input
+				type='text'
+				value={newProduct.category}
+				onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+				placeholder='Category'
+			/>
+			{/* Add other fields for the product as necessary */}
+			<button onClick={handleAddProduct}>Add Product</button>
+
+			{editingProduct && (
+				<div>
+					<h2>Edit Product</h2>
 					<input
 						type='text'
-						value={newPost.title}
-						onChange={e => setNewPost({ ...newPost, title: e.target.value })}
+						value={editingProduct.title}
+						onChange={e => setEditingProduct({ ...editingProduct, title: e.target.value })}
 						placeholder='Title'
-						className='border p-2 mb-2 w-full'
 					/>
-					<textarea
-						value={newPost.body}
-						onChange={e => setNewPost({ ...newPost, body: e.target.value })}
-						placeholder='Body'
-						className='border p-2 mb-2 w-full'
-					/>
-				</div>
-				<button onClick={handleAddPost} className='bg-blue-500 text-white p-2 rounded'>
-					Add Post
-				</button>
-			</div>
-			{editingPost && (
-				<div className='mb-4'>
-					<h2 className='text-lg font-semibold'>Edit Post</h2>
 					<input
 						type='text'
-						value={editingPost.title}
-						onChange={e => setEditingPost({ ...editingPost, title: e.target.value })}
-						placeholder='Title'
-						className='border p-2 mb-2'
+						value={editingProduct.description}
+						onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })}
+						placeholder='Description'
 					/>
-					<textarea
-						value={editingPost.body}
-						onChange={e => setEditingPost({ ...editingPost, body: e.target.value })}
-						placeholder='Body'
-						className='border p-2 mb-2 w-full'
+					<input
+						type='text'
+						value={editingProduct.thumbnail}
+						onChange={e => setNewProduct({ ...editingProduct, thumbnail: e.target.value })}
+						placeholder='Image URL'
 					/>
-					<button onClick={handleUpdatePost} className='bg-yellow-500 text-white p-2 rounded'>
-						Update Post
-					</button>
+					<input
+						type='number'
+						value={editingProduct.price}
+						onChange={e => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+						placeholder='Price'
+					/>
+					<input
+						type='text'
+						value={editingProduct.category}
+						onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+						placeholder='Category'
+					/>
+					<button onClick={handleUpdateProduct}>Update Product</button>
 				</div>
 			)}
-			<ul>
-				{posts.map(post => (
-					<li key={post.id} className='border p-2 mb-2'>
-						<h3 className='text-lg font-semibold'>{post.title}</h3>
-						<p>{post.body}</p>
-						<button
-							onClick={() => setEditingPost(post)}
-							className='bg-green-500 text-white p-1 rounded mr-2'
-						>
-							Edit
-						</button>
-						<button
-							onClick={() => handleDeletePost(post.id)}
-							className='bg-red-500 text-white p-1 rounded'
-						>
-							Delete
-						</button>
-					</li>
-				))}
-			</ul>
+
+			<h2>Products List</h2>
+			{products.map(product => (
+				<div key={product.id} className='product'>
+					<h3>{product.title}</h3>
+					<img src={product.thumbnail} alt={product.title} />
+					<p>{product.category}</p>
+					<p>{product.description}</p>
+					<button onClick={() => setEditingProduct(product)}>Edit</button>
+					<button className='delete-button' onClick={() => dispatch(deleteProduct(product.id))}>
+						Delete
+					</button>
+				</div>
+			))}
 		</div>
 	);
 };
 
-export default Dashboard;
+export default ProductsComponent;
