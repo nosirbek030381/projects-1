@@ -11,6 +11,8 @@ const App = () => {
 
 		if (!token) {
 			navigate('/login');
+		} else {
+			navigate('/dashboard');
 		}
 	}, [navigate]);
 

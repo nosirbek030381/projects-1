@@ -9,10 +9,20 @@ import {
 import { AppDispatch, RootState } from '@/store';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const ProductsComponent = () => {
 	const dispatch = useDispatch<AppDispatch>();
 	const { products, status, error } = useSelector((state: RootState) => state.products);
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const token = localStorage.getItem('token');
+
+		if (!token) {
+			navigate('/login');
+		}
+	}, [navigate]);
 
 	const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
 		title: '',
