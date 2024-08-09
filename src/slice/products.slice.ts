@@ -30,10 +30,18 @@ export const fetchProducts = createAsyncThunk('products/fetchProducts', async ()
 export const addProduct = createAsyncThunk(
 	'products/addProduct',
 	async (newProduct: Omit<Product, 'id'>) => {
-		const response = await axios.post('https://dummyjson.com/products/add', newProduct);
+		const response = await axios.post('http://localhost:3000/products', newProduct);
 		return response.data;
 	}
 );
+
+// export const addProduct = createAsyncThunk(
+// 	'products/addProduct',
+// 	async (newProduct: Omit<Product, 'id'>) => {
+// 		const response = await axios.post('https://dummyjson.com/products/add', newProduct);
+// 		return response.data;
+// 	}
+// );
 
 export const updateProduct = createAsyncThunk(
 	'products/updateProduct',
